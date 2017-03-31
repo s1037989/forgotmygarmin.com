@@ -1,0 +1,12 @@
+{
+  pg => 'postgresql://user@%2fvar%2frun%2fpostgresql/db',
+  secrets => ['s3cret'],
+  oauth2 => {
+    strava => {
+      key           => "xxx",
+      secret        => "xxx",
+      authorize_url => "https://www.strava.com/oauth/authorize?response_type=code",
+      token_url     => "https://www.strava.com/oauth/token",
+    },
+  },
+};

@@ -1,0 +1,92 @@
+body, p {font-family: nunito;}
+body {background: url(/assets/img/bg.png) center -10px no-repeat transparent;}
+
+h1, h2, h3, h4, h5, h6 {font-family: 'Nunito', sans-serif !important; color: #29497B !important;}
+p {font-size: 18px;}
+
+#logo {position: static; margin: 30px auto!important; width: 100%; text-align: center; max-width: 100%;}
+
+nav li a {
+    font-family:'Nunito', sans-serif;
+      color: #29497B;
+}
+nav#primary li a{
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 16px;
+}
+
+#intro {
+    background: rgba(255, 255, 255, .7);
+    padding: 10px 20px 20px;
+    border-radius: 15px;
+    width: 96%;
+    max-width: 490px;
+    margin-left: 80px;
+    margin-top: 100px;
+}
+
+#intro p {
+    font-size: 20px;
+    color: #4a4a4a;
+    line-height: 1.5;
+}
+
+a.strava {
+    margin: auto; 
+    background-color: #FC4C02; 
+    border-radius: 0px; 
+    font-size: 22px;
+    color: #fff;
+    font-family: 'Gruppo', sans-serif;
+    box-shadow: 0px -2px 6px 0px rgba(0,0,0,0.5);
+    margin-left: 190px;
+    position: relative;
+    top: -20px;
+}
+
+a.strava:hover {
+    color: #fff;
+}
+
+#feature {
+    color: #f1f1f1;
+    margin: 170px auto 20px;
+    padding-bottom: 80px;
+    max-width: 980px;    
+}
+
+#feature h2 {
+    color: #f1f1f1 !important;
+}
+
+#footer {
+    background: #F0EFEE;
+    margin-top: 30px;
+}
+#footer nav {
+    margin-top: 20px;
+    background: #F0EFEE;
+    font-family: 'Nunito', sans-serif;
+}
+#footer nav li a:hover {
+    background: none;
+}
+#footer .navbar-right li {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    color: #777;
+}
+
+@media screen and (max-width: 768px) {
+    #content {background: #fff; padding: 5px 10px;}
+    body {background-position: center -60px;}
+}
+@media screen and (max-width: 767px){
+    .container {padding-left: 0px !important; padding-right: 0px !important;}
+    #intro {margin: 10px 2%;}
+    #content {max-width: 94%; margin:0 auto;}
+    #intro p {font-size: 18px;}
+    a.strava {margin-left:40px;}
+    #feature {background-color: #4F565A; margin-top: 0px; padding: 20px 10px;}
+}

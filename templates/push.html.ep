@@ -1,0 +1,5 @@
+% layout 'stuckey';
+<h1>Select an athlete to push an activity to</h1>
+% foreach ( @$athletes ) {
+  <%= link_to $_->{firstname} => url_for 'pushdestination', destination => $_->{id} %><br />
+% }
