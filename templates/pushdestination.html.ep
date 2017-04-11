@@ -1,5 +1,0 @@
-% layout 'stuckey';
-<h1>Select an activity to push to <%= $c->pg->db->query(q(select concat_ws(' ', firstname, lastname) as name from strava where id = ?), $c->param('destination'))->hash->{name} %></h1>
-% foreach ( @$activities ) {
-  <%= link_to $_->{name} => url_for 'pushdestinationactivity', destination => $c->param('destination'), activity => $_->{id} %><br />
-% }

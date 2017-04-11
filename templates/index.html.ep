@@ -1,6 +1,7 @@
-% layout 'stuckey';
+% layout 'landing';
 % title 'Welcome';
 <h2>Some More Content</h2>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
 
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
+<p><%= dumper $c->session %></p>

@@ -3,3 +3,11 @@ create table strava (id text primary key, access_token text, firstname text, las
 
 -- 1 down
 drop table strava;
+
+-- 2 up
+create table push (id text, friend text);
+create table pull (id text, friend text);
+
+-- 2 down
+drop table push;
+drop table pull;

@@ -11,7 +11,7 @@
         <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
         %= javascript '/js/menu.js'
     </head>
-    <body>
+    <body class="not-home">
         <div class="container">
              <nav id="primary">
                  <div class="container-fluid">
@@ -26,15 +26,6 @@
                  </div>
              </nav>
             <div id="logo"><%= image '/assets/img/logo.png' %></div>
-            <div id="intro">
-                <h1>Forgot Your Garmin?</h1>
-                <p>So you forgot your Garmin? Or forgot to start it? Or lost it or broke it? We get it, "if it's not on Strava, it didn't happen!" Using forgotmygarmin.com you can now have your riding buddies push your missed activities to you, and soon you'll be able to handle it without inconveniencing them by pulling activities from them.</p>
-            </div>
-            <%= link_to "Connect to Strava", $c->oauth2->auth_url("strava", response_type => 'code', scope => "view_private,write", redirect_uri => $c->url_for('connect')->userinfo(undef)->to_abs) => (class => 'btn btn-gl text-uppercase strava') %>
-            <div id="feature">
-                <h2>How It Works</h2>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-            </div>
             <div id="content">
                 %= content
             </div>

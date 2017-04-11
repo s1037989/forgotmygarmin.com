@@ -1,0 +1,19 @@
+% layout 'landing';
+%= form_for '/friends' => (method => 'POST') => begin
+  <h1>Grant Access</h1>
+  %= label_for 'grant_pull' => 'Add emails of Strava users you want to allow to pull from you (everyone by default)'
+  %= text_area 'grant_pull'
+  %= label_for 'grant_push' => 'Add emails of Strava users you want to allow to push to you (no one by default)'
+  %= text_area 'grant_push'
+  <h1>Request Access</h1>
+  %= label_for 'request_pull' => 'Add emails of Strava users you want to allow to pull from you (everyone by default)'
+  %= text_area 'request_pull'
+  %= label_for 'request_push' => 'Add emails of Strava users you want to allow to push to you (no one by default)'
+  %= text_area 'request_push'
+  <h1>Revoke Access</h1>
+  %= label_for 'revoke_pull' => 'Add emails of Strava users you want to allow to pull from you (everyone by default)'
+  %= text_area 'revoke_pull'
+  %= label_for 'revoke_push' => 'Add emails of Strava users you want to allow to push to you (no one by default)'
+  %= text_area 'revoke_push'
+  %= submit_button
+% end

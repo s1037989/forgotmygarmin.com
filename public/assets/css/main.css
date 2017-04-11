@@ -1,10 +1,18 @@
 body, p {font-family: nunito;}
 body {background: url(/assets/img/bg.png) center -10px no-repeat transparent;}
+body.not-home {background: url(/assets/img/inner-bg.png) center -10px no-repeat transparent;}
 
 h1, h2, h3, h4, h5, h6 {font-family: 'Nunito', sans-serif !important; color: #29497B !important;}
 p {font-size: 18px;}
 
 #logo {position: static; margin: 30px auto!important; width: 100%; text-align: center; max-width: 100%;}
+.not-home #logo {margin: 10px auto!important;}
+
+.disabled {
+    pointer-events: none;
+    cursor: default;
+    opacity: 0.6;
+}
 
 nav li a {
     font-family:'Nunito', sans-serif;
@@ -60,11 +68,16 @@ a.strava:hover {
     color: #f1f1f1 !important;
 }
 
+.standout {
+    background-color: #E5EAED;
+    border-radius: 8px;
+}
+
 #footer {
     background: #F0EFEE;
     margin-top: 30px;
 }
-#footer nav {
+#footer .navbar-fixed-bottom {
     margin-top: 20px;
     background: #F0EFEE;
     font-family: 'Nunito', sans-serif;
@@ -72,15 +85,24 @@ a.strava:hover {
 #footer nav li a:hover {
     background: none;
 }
+#footer .navbar-right {
+    margin-right: 10px;
+}
 #footer .navbar-right li {
     padding-top: 15px;
     padding-bottom: 15px;
     color: #777;
 }
 
+.not-home #content {
+    margin-top:70px;
+}
+
+
 @media screen and (max-width: 768px) {
     #content {background: #fff; padding: 5px 10px;}
     body {background-position: center -60px;}
+    .navbar-fixed-bottom {position: static;}
 }
 @media screen and (max-width: 767px){
     .container {padding-left: 0px !important; padding-right: 0px !important;}
