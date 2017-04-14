@@ -39,7 +39,7 @@ sub listactivities {
 sub pushactivity {
   my $self = shift;
   return $self->reply->not_found unless $self->pg->db->select('push', ['id'], {id => $self->param('destination'), friend => $self->session('id')})->hash;
-  $self->minion->enqueue(pushactivity => [$self->session('id'), $self->param('destination'), $self->every_param('activity')]);
+  $self->minion->enqueue(copy_activity => [$self->session('id'), $self->param('destination'), $self->every_param('activity')]);
   $self->flash(message => 'Pushing activities')->redirect_to('push_listfriends');
 }
 

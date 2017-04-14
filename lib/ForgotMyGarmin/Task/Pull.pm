@@ -1,4 +1,4 @@
-package ForgotMyGarmin::Task::Push;
+package ForgotMyGarmin::Task::Pull;
 use Mojo::Base 'Mojolicious::Plugin';
 
 use Mojo::File 'tempfile';
@@ -8,15 +8,16 @@ use DateTime;
 
 sub register {
   my ($self, $app) = @_;
-  $app->minion->add_task(pushactivity => sub {
-    my ($job, $sessionid, $destination, $activities) = @_;
+  $app->minion->add_task(pullactivity => sub {
+    my ($job, $sessionid, $source, $activities) = @_;
 
+    my @upload;
     foreach ( @$activities ) {
       $job->app->log->debug($_);
-      my $access_token = $job->app->pg->db->select('strava', ['access_token'], {id => $sessionid})->hash->{access_token};
+      my $access_token = $job->app->pg->db->select('strava', ['access_token'], {id => $source})->hash->{access_token};
       my $activity = $job->app->ua->get("https://www.strava.com/api/v3/activities/$_" => {Authorization => "Bearer $access_token"})->res->json;
       my $stream = $job->app->ua->get("https://www.strava.com/api/v3/activities/$_/streams/latlng,time,temp,altitude,distance,moving,grade_smooth" => {Authorization => "Bearer $access_token"})->res->json;
-      $access_token = $job->app->pg->db->select('strava', ['access_token'], {id => $destination})->hash->{access_token};
+      $access_token = $job->app->pg->db->select('strava', ['access_token'], {id => $sessionid})->hash->{access_token};
       my ($latlng) = grep { $_->{type} eq 'latlng' } @$stream;
       my ($distance) = grep { $_->{type} eq 'distance' } @$stream;
       my ($time) = grep { $_->{type} eq 'time' } @$stream;
@@ -41,8 +42,9 @@ sub register {
       my $tempfile = tempfile;
       $tempfile->spurt($gpx->xml('1.0'));
       my $upload = $job->app->ua->post('https://www.strava.com/api/v3/uploads' => {Authorization => "Bearer $access_token"} => form => {activity_type => $activity->{type}, data_type => 'gpx', file => {file => "$tempfile"}});
-      $job->finish($upload->res->json);
+      push @upload, $upload->res->json;
     }
+    $job->finish({upload => [@upload]});
   });
 }
 

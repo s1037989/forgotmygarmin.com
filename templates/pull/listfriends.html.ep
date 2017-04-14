@@ -1,5 +1,8 @@
 % layout 'landing';
-<h1>Select an athlete to pull an activity to</h1>
+% if ( flash 'message' ) {
+<div class="message"><%= flash 'message' %></div>
+% }
+<h1>Select an athlete to pull an activity from</h1>
 % foreach ( @$athletes ) {
-  <%= link_to $_->{firstname} => url_for 'pulldestination', destination => $_->{id} %><br />
+  <%= link_to $_->{firstname} => url_for 'pull_listactivities', source => $_->{id} %><br />
 % }

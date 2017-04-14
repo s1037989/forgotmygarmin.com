@@ -6,6 +6,8 @@ use Mojo::JWT;
 use Mojo::File 'tempfile';
 use Minion;
 
+use ForgotMyGarmin::Model::Strava;
+
 use POSIX 'strftime';
 
 # This method will run once at server start
@@ -18,15 +20,17 @@ sub startup {
   # Documentation browser under "/perldoc"
   $self->plugin('PODRenderer') if $config->{perldoc};
   $self->plugin('Minion' => {Pg => $config->{pg}});
+  $self->plugin('Sendgrid');
   $self->plugin('OAuth2' => $config->{oauth2});
 
   $self->helper(pg => sub { state $pg = Mojo::Pg->new($config->{pg}) });
+  $self->helper(strava => sub { my $c = shift; state $strava = ForgotMyGarmin::Model::Strava->new(pg => $c->pg, ua => $c->ua) });
   $self->helper(auth_url => sub {
     my $c = shift;
     $c->oauth2->auth_url("strava", response_type => 'code', scope => "view_private,write", redirect_uri => $c->url_for('connect')->userinfo(undef)->to_abs);
   });
 
-  $self->plugin('ForgotMyGarmin::Task::Push');
+  $self->plugin('ForgotMyGarmin::Task::Strava');
 
   $self->sessions->default_expiration(315360000);
 
@@ -44,11 +48,12 @@ sub startup {
   my $friends = $r->under('/friends')->to('friends#under');
   $r->get('/friends')->to('friends#home')->name('friends_home');
   $r->post('/friends')->to('friends#update')->name('friends_update');
+  $r->get('/friends/accept/#jwt')->to('friends#accept')->name('friends_accept');
 
   my $pull = $r->under('/pull')->to('pull#under');
   $pull->get('/')->to('pull#listfriends')->name('pull_listfriends');
-  $pull->get('/:destination')->to('pull#listactivities')->name('pull_listactivities');
-  $pull->get('/:destination/:activity')->to('pull#pullactivity')->name('pull_pullactivity');
+  $pull->get('/:source')->to('pull#listactivities')->name('pull_listactivities');
+  $pull->post('/:source')->to('pull#pullactivity')->name('pull_pullactivity');
 
   my $push = $r->under('/push')->to('push#under');
   $push->get('/')->to('push#listfriends')->name('push_listfriends');
