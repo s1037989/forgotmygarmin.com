@@ -54,6 +54,12 @@ sub update {
   $self->redirect_to('friends');
 }
 
+sub find {
+  my $self = shift;
+  my $friend = $self->param('friend');
+  $self->render(json => $self->pg->db->select('strava', 'id, concat_ws(\' \', firstname, lastname) as name', {-or => [email => $friend, \['lower(concat_ws(\' \', firstname, lastname)) like lower(?)', "%$friend%"]]})->hash);
+}
+
 sub accept {
   my $self = shift;
   warn $self->param('jwt');

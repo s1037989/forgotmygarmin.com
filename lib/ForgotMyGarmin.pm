@@ -9,6 +9,7 @@ use Minion;
 use ForgotMyGarmin::Model::Strava;
 
 use POSIX 'strftime';
+use SQL::Abstract;
 
 # This method will run once at server start
 sub startup {
@@ -24,6 +25,7 @@ sub startup {
   $self->plugin('OAuth2' => $config->{oauth2});
 
   $self->helper(pg => sub { state $pg = Mojo::Pg->new($config->{pg}) });
+  $self->pg->abstract(SQL::Abstract->new(convert => 'lower'));
   $self->helper(strava => sub { my $c = shift; state $strava = ForgotMyGarmin::Model::Strava->new(pg => $c->pg, ua => $c->ua) });
   $self->helper(auth_url => sub {
     my $c = shift;
@@ -49,6 +51,7 @@ sub startup {
   $r->get('/friends')->to('friends#home')->name('friends_home');
   $r->post('/friends')->to('friends#update')->name('friends_update');
   $r->get('/friends/accept/#jwt')->to('friends#accept')->name('friends_accept');
+  $r->get('/friends/find/:friend')->to('friends#find')->name('friends_find');
 
   my $pull = $r->under('/pull')->to('pull#under');
   $pull->get('/')->to('pull#listfriends')->name('pull_listfriends');
