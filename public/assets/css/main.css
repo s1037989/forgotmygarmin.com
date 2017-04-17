@@ -98,6 +98,10 @@ a.strava:hover {
     margin-top:70px;
 }
 
+.map {
+    width:128px;
+    height:128px;
+}
 
 @media screen and (max-width: 768px) {
     #content {background: #fff; padding: 5px 10px;}

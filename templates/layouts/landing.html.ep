@@ -7,9 +7,13 @@
         <title>Forgot My Garmin</title>
         %= stylesheet '/assets/css/main.css'
         %= stylesheet '/bootstrap/css/bootstrap.min.css'
+        %= stylesheet '/vue/vue-instant.css'
         <link href="https://fonts.googleapis.com/css?family=Gruppo|Nunito:300,400,700" rel="stylesheet">
         <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
         %= javascript '/js/menu.js'
+        %= javascript 'https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.1/axios.min.js'
+        %= javascript 'https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.6/vue.min.js'
+        %= javascript '/vue/vue-instant.browser.js'
     </head>
     <body class="<%= current_route eq 'index' ? '' : 'not-home'%>">
         <div class="container">

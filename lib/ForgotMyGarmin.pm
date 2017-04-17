@@ -26,11 +26,15 @@ sub startup {
 
   $self->helper(pg => sub { state $pg = Mojo::Pg->new($config->{pg}) });
   $self->pg->abstract(SQL::Abstract->new(convert => 'lower'));
-  $self->helper(strava => sub { my $c = shift; state $strava = ForgotMyGarmin::Model::Strava->new(pg => $c->pg, ua => $c->ua) });
+  $self->helper(strava => sub { my $c = shift; state $strava = ForgotMyGarmin::Model::Strava->new(pg => $c->pg, ua => $c->ua, id => $c->session('id')) });
   $self->helper(auth_url => sub {
     my $c = shift;
     $c->oauth2->auth_url("strava", response_type => 'code', scope => "view_private,write", redirect_uri => $c->url_for('connect')->userinfo(undef)->to_abs);
   });
+
+  $self->helper(elapsed_time => sub { shift; strftime "%T", gmtime shift });
+  $self->helper(distance => sub { shift; sprintf "%.2f", shift(@_) * 0.000621371 });
+  $self->helper(date => sub { shift; shift });
 
   $self->plugin('ForgotMyGarmin::Task::Strava');
 

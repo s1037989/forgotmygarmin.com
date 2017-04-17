@@ -10,7 +10,7 @@ sub under {
 
 sub listfriends {
   my $self = shift;
-  $self->render(athletes => $self->pg->db->query('select strava.* from pull left join strava using(id) where pull.friend = ?', $self->session('id'))->hashes);
+  $self->render(athletes => $self->strava->listfriends);
 }
 
 sub listactivities {

@@ -57,7 +57,7 @@ sub update {
 sub find {
   my $self = shift;
   my $friend = $self->param('friend');
-  $self->render(json => $self->pg->db->select('strava', 'id, concat_ws(\' \', firstname, lastname) as name', {-or => [email => $friend, \['lower(concat_ws(\' \', firstname, lastname)) like lower(?)', "%$friend%"]]})->hash);
+  $self->render(json => $self->pg->db->select('strava', 'id, concat_ws(\' \', firstname, lastname) as name', {-or => [email => $friend, \['lower(concat_ws(\' \', firstname, lastname)) like lower(?)', "%$friend%"]]})->hashes);
 }
 
 sub accept {
