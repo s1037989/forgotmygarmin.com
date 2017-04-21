@@ -2,8 +2,6 @@ package ForgotMyGarmin;
 use Mojo::Base 'Mojolicious';
 
 use Mojo::Pg;
-use Mojo::JWT;
-use Mojo::File 'tempfile';
 use Minion;
 
 use ForgotMyGarmin::Model::Strava;
@@ -32,6 +30,7 @@ sub startup {
     $c->oauth2->auth_url("strava", response_type => 'code', scope => "view_private,write", redirect_uri => $c->url_for('connect')->userinfo(undef)->to_abs);
   });
 
+  # Move these to a plugin
   $self->helper(elapsed_time => sub { shift; strftime "%T", gmtime shift });
   $self->helper(distance => sub { shift; sprintf "%.2f", shift(@_) * 0.000621371 });
   $self->helper(date => sub { shift; shift });
@@ -52,10 +51,10 @@ sub startup {
   $r->get('/logout')->to('auth#logout');
 
   my $friends = $r->under('/friends')->to('friends#under');
-  $r->get('/friends')->to('friends#home')->name('friends_home');
-  $r->post('/friends')->to('friends#update')->name('friends_update');
-  $r->get('/friends/accept/#jwt')->to('friends#accept')->name('friends_accept');
-  $r->get('/friends/find/:friend')->to('friends#find')->name('friends_find');
+  $friends->get('/')->to('friends#home')->name('friends_home');
+  $friends->post('/')->to('friends#update')->name('friends_update');
+  $friends->get('/accept/#jwt')->to('friends#accept')->name('friends_accept');
+  $r->get('/friends/find')->to('friends#find')->name('friends_find');
 
   my $pull = $r->under('/pull')->to('pull#under');
   $pull->get('/')->to('pull#listfriends')->name('pull_listfriends');

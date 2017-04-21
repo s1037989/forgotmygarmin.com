@@ -4,7 +4,6 @@ use Mojo::Base -base;
 use Mojo::File 'tempfile';
 
 use Geo::Gpx;
-use Algorithm::GooglePolylineEncoding;
 use DateTime;
 
 has [qw/pg ua id/];
@@ -22,15 +21,6 @@ sub listfriends {
     $_->{activities} = $self->get($id, '/athlete/activities' => form => {per_page => 3})->json;
   }
   return $friends;
-}
-
-sub _decode_polylines {
-  my $arrayref = shift or return;
-  ref $arrayref eq 'ARRAY' or return;
-  foreach ( @$arrayref ) {
-    $_->{map}->{decoded_polyline} = [Algorithm::GooglePolylineEncoding::decode_polyline($_->{map}->{summary_polyline})] if $_->{map} && $_->{map}->{summary_polyline};
-  }
-  return $arrayref;
 }
 
 sub copy_activity {

@@ -56,8 +56,10 @@ sub update {
 
 sub find {
   my $self = shift;
-  my $friend = $self->param('friend');
-  $self->render(json => $self->pg->db->select('strava', 'id, concat_ws(\' \', firstname, lastname) as name', {-or => [email => $friend, \['lower(concat_ws(\' \', firstname, lastname)) like lower(?)', "%$friend%"]]})->hashes);
+  my $friend = $self->param('q');
+  my $page = $self->param('page') // 1;
+  #$self->render(json => $self->pg->db->select('strava', 'id, concat_ws(\' \', firstname, lastname) as name', {-or => [email => $friend, \['lower(concat_ws(\' \', firstname, lastname)) like lower(?)', "%$friend%"]]})->hashes);
+  $self->render(json => {page => $page, pages => 3, results => [{img => "123.png", name => "Lorem ipsum", location => "Eureka, MO", bikes => 39, runs => 14, request => [-1, -1], allow => [1, 1]}, {img => "345.png", name => "Fuisset torquatos", location => "Hope, NE", bikes => 12, runs => 23, request => [0, -1], allow => [0, 0]}, {img => "789.png", name => "Ea iisque", location => "Hope, NE", bikes => 1, runs => 2, request => [-1, 0], allow => [1, 0]}]});
 }
 
 sub accept {
