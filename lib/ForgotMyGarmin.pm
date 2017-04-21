@@ -51,6 +51,13 @@ sub startup {
   # Router
   my $r = $self->routes;
 
+  if ( $self->app->mode ne 'production' ) {
+  	$r->get('/session/:id')->to(cb => sub {
+  	  my $c = shift;
+  	  $c->session(id => $c->param('id'))->redirect_to('index');
+  	});
+  }
+
   $r->get('/')->name('index');
   $r->get('/connect')->to('auth#connect');
   $r->get('/logout')->to('auth#logout');

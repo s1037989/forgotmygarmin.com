@@ -26,6 +26,7 @@
                      </ul>
                      <ul class="nav navbar-nav navbar-right">
                          <li><%= link_to session('id') ? (Logout => 'logout') : ("Connect to Strava" => $c->auth_url) %></li>
+                         <li><%= image $c->pg->db->select('strava', 'profile_url', {id => session 'id'})->hash->{profile_url} => (class => "img-circle") %></li>
                      </ul>
                  </div>
              </nav>
