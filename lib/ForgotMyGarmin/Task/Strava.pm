@@ -4,7 +4,7 @@ use Mojo::Base 'Mojolicious::Plugin';
 sub register {
   my ($self, $app) = @_;
 
-  $app->minion->add_task(copy_activity => sub {
+  $app->minion->add_task(copy_activities => sub {
     my ($job, $source, $destination, $activities) = @_;
 
     my @upload;

@@ -1,0 +1,81 @@
+% layout 'landing';
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=<%= config 'google_maps_key' %>&libraries=geometry" type="text/javascript"></script>
+%= javascript '/assets/js/map_thumbnail.js'
+% if ( flash 'message' ) {
+<div class="message"><%= flash 'message' %></div>
+% }
+<div class="row">
+<div class="col-md-8">
+<div id="vue">
+  <api-data apiurl="<%= url_for 'pull' %>">
+    Select an athlete to pull an activity from
+  </api-data>
+</div>
+
+<script type="text/x-template" id="api-data">
+<div id="my-friend-list" class="col-sm-12" style="padding: 25px;" v-cloak>
+  <h1><slot></slot></h1>
+  <div id="search-input" class="col-sm-4" style="height: 50px">
+    <input type="text" v-model="search" v-on:input="onSearchChange()" class="form-control"
+           placeholder="search" autocomplete="off"/>
+  </div>
+  <div id="friend-list-table" class="col-sm-12" style="min-height: 150px">
+    <table class="table table-responsive">
+      <thead>
+      <tr>
+        <th></th>
+        <th>Athlete</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-if="data.length > 0 && !loader" v-for="friend in data">
+        <td><img :src="friend.profile_url" class="img-circle profile" /></td>
+        <td><a :href="friend.link">{{friend.name}}</a></td>
+      </tr>
+      <tr v-if="data.length == 0 && !loader">
+        <td colspan="7" style="text-align: center"><b>No Record Found</b></td>
+      </tr>
+      <tr v-if="loader">
+        <td colspan="7" style="text-align: center"><b>Loading...</b></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div id="paginate-content" class="col-sm-12" v-if="data.length > 0 && !loader">
+    <nav aria-label="Page navigation">
+      <ul class="pagination">
+        <li :class="{disabled: !getLink('start') || getLink('start') == getLink('current')}">
+          <a href="javascript:void(0)" v-on:click="getData('start')" aria-label="Start">
+            <span aria-hidden="true">&laquo;&laquo;</span>
+          </a>
+        </li>
+        <li :class="{disabled: !getLink('prev')}">
+          <a href="javascript:void(0)" v-on:click="getData('prev')" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li>
+          <span aria-hidden="true">{{currentPage()}}</span>
+        </li>
+        <li :class="{disabled: !getLink('next')}">
+          <a href="javascript:void(0)" v-on:click="getData('next')" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+        <li :class="{disabled: !getLink('end') || getLink('end') == getLink('current')}">
+          <a href="javascript:void(0)" v-on:click="getData('end')" aria-label="End">
+            <span aria-hidden="true">&raquo;&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+</script>
+<script>
+  var data = new Vue({
+    el: '#vue'
+  });
+</script>
+</div>
+</div>

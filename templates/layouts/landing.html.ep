@@ -7,26 +7,44 @@
         <title>Forgot My Garmin</title>
         %= stylesheet '/assets/css/main.css'
         %= stylesheet '/bootstrap/css/bootstrap.min.css'
-        %= stylesheet '/vue/vue-instant.css'
-        <link href="https://fonts.googleapis.com/css?family=Gruppo|Nunito:300,400,700" rel="stylesheet">
-        <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-        %= javascript '/js/menu.js'
-        %= javascript 'https://cdnjs.cloudflare.com/ajax/libs/axios/0.16.1/axios.min.js'
+        %= stylesheet 'https://fonts.googleapis.com/css?family=Gruppo|Nunito:300,400,700'
+        %= javascript 'https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js'
+        %= javascript 'https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js'
+        %= javascript 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'
         %= javascript 'https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.6/vue.min.js'
-        %= javascript '/vue/vue-instant.browser.js'
+        %= javascript 'https://cdnjs.cloudflare.com/ajax/libs/vue-resource/1.3.1/vue-resource.min.js'
+        %= javascript '/js/URI.js'
+        %= javascript '/js/linkheaderparser.js'
+        %= javascript '/js/app.js'
     </head>
     <body class="<%= current_route eq 'index' ? '' : 'not-home'%>">
         <div class="container">
              <nav id="primary">
                  <div class="container-fluid">
                      <ul class="nav navbar-nav <%= session('id') ? '' : 'disabled' %>">
-                         <li><%= link_to Pull => 'pull' %></li>
-                         <li><%= link_to Push => 'push' %></li>
-                         <li><%= link_to Friends => 'friends' %></li>
+                        <li><%= link_to Pull => 'pull' %></li>
+                        <li><%= link_to Push => 'push' %></li>
+                        <li><%= link_to Friends => 'friends' %></li>
                      </ul>
                      <ul class="nav navbar-nav navbar-right">
-                         <li><%= link_to session('id') ? (Logout => 'logout') : ("Connect to Strava" => $c->auth_url) %></li>
-                         <li><%= image $c->pg->db->select('strava', 'profile_url', {id => session 'id'})->hash->{profile_url} => (class => "img-circle") %></li>
+                        <li><%= link_to session('id') ? (Logout => 'logout') : ("Connect to Strava" => $c->auth_url) %></li>
+                        % if ( session 'id' ) {
+                          % if ( developer ) {
+                          <li class="dropdown">
+                            <a href="#" class="dropdown-toggle developer" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                              <%= image $c->pg->db->select('strava', 'profile_url', {id => session 'id'})->hash->{profile_url} => (class => "img-circle profile developer") %>
+                              <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                              % foreach ( @{$c->pg->db->query('select id, profile_url from strava where profile_url is not null and profile_url != \'\' limit 5')->hashes} ) {
+                              <li><%= link_to image($_->{profile_url} => (class => "img-circle profile developer")) => 'sessionid', {id => $_->{id}} %></li>
+                              % }
+                            </ul>
+                          </li>
+                          % } else {
+                          <li><%= image $c->pg->db->select('strava', 'profile_url', {id => session 'id'})->hash->{profile_url} => (class => "img-circle") %></li>
+                          % }
+                        % }
                      </ul>
                  </div>
              </nav>

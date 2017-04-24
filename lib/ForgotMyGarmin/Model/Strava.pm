@@ -2,11 +2,49 @@ package ForgotMyGarmin::Model::Strava;
 use Mojo::Base -base;
 
 use Mojo::File 'tempfile';
+use Mojo::Util 'monkey_patch';
 
 use Geo::Gpx;
 use DateTime;
+use Data::Pager;
 
-has [qw/pg ua id/];
+has [qw/pg ua/];
+
+has [qw/id query/];
+
+sub _pagination {
+  my ($self, $id, $query, $select) = @_;
+  $query->{page} //= 1;
+  $query->{per_page} //= 3;
+  my @select = my @count = @$select;
+  $count[1] = 'count(*)';
+  my $count = $self->pg->db->select(@count)->hash->{count};
+  my $pager = Data::Pager->new({current => $query->{page}, perpage => 5, offset  => $query->{per_page}, limit => $count}) or return undef;
+  $pager->current or return undef;
+  my $results = $self->pg->db->select(@select, $pager->offset, $pager->from)->hashes or return undef;
+  return $results => $pager;
+}
+
+sub access_token {
+  my ($self, $id) = @_;
+  $self->pg->db->select('strava', ['access_token'], {id => $id})->hash->{access_token};
+}
+sub can_pull {
+  my ($self, $id, $friend) = @_;
+  $self->pg->db->select('pull', ['id'], {friend => $friend, id => $id})->hash;
+}
+
+sub can_push {
+  my ($self, $id, $friend) = @_;
+  $self->pg->db->select('push', ['id'], {friend => $friend, id => $id})->hash;
+}
+
+sub users {
+  my ($self, $id, $query) = @_;
+
+  my $where = {-or => [email => $query->{q}, \['lower(concat_ws(\' \', firstname, lastname)) like lower(?)', "%$query->{q}%"]]} if $query->{q};
+  return $self->_pagination($id, $query, ['strava', 'id, profile_url, concat_ws(\' \', firstname, lastname) as name', $where, undef]);
+}
 
 sub listfriends {
   my $self = shift;
@@ -60,7 +98,7 @@ sub copy_activity {
 sub get {
   my ($self, $id, $url) = (shift, shift, shift);
   ($id && $url) or return;
-  return $self->ua->get($self->_url($id, $url) => @_)->result;
+  return $self->ua->get($self->_url($id, $url) => @_);
 }
 sub post {
   my ($self, $id, $url) = (shift, shift, shift);

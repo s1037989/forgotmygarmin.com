@@ -2,11 +2,14 @@
  * Created by milan on 20/04/17.
  */
 
-var searchFriend = new Vue({
-    el: '#my-friend-list',
+Vue.component('api-data', {
+  template: '#api-data',
+  
+  created: function () { this.getData() },
 
-    data: {
-      apiURL: "https://forgotmygarmin.com/friends/find",
+  data: function () {
+    return {
+      apiURL: "",
       loader: false,
       search: "",
       data: [],
@@ -15,69 +18,74 @@ var searchFriend = new Vue({
       error: {
         message: ""
       }
-    },
+    };
+  },
 
-    created: function () {
-      this.getFriends(1)
-    },
-
-    methods: {
-      onSearchChange: _.debounce(function () {
-        this.getFriends(1)
-      }, 500),
-
-      getFriends: function (page) {
-        var that = this;
-        if (this.search && this.search != "") {
-          var url = that.apiURL + "?q=" + this.search;
-
-          if (page > 1) {
-            url = url + "&page=" + page
-          }
-
-          that.loader = true;
-          that.$http.get(url)
-            .then(function (result) {
-              that.loader = false;
-              data = result.data;
-              that.page = parseInt(data.page);
-              that.pages = parseInt(data.pages);
-              that.data = data.results;
-            }, function (response, status, request) {
-              that.loader = false;
-              var data = response.data;
-              if (data.message) {
-                that.error.message = data.message;
-              }
-              else {
-                that.error.message = "Oops Something went wrong, please try again later.";
-              }
-            })
-            .finally(function () {
-            });
-        } else {
-          that.page = 1;
-          that.pages = 1;
-          that.data = [];
-        }
-      },
-      getPages: function () {
-        var arr = [];
-
-        for (var i = 1; i <= this.pages; i++) {
-          var page = {
-            text: "page" + i,
-            id: i,
-            current: false
-          };
-          if (i == this.page) {
-            page.current = true;
-          }
-          arr.push(page)
-        }
-
-        return arr;
-      }
+  props: {
+    apiurl: {
+      type: String,
+      required: true
     }
-  })
-  ;
+  },
+  
+  methods: {
+    onSearchChange: _.debounce(function () { this.getData('current') }, 500),
+
+    getData: function (rel) {
+      var that = this;
+      var apiurl = rel ? that.apiURL[rel] : that.apiurl;
+      if (apiurl && apiurl !== "") {
+        var url = URI(apiurl);
+        if ( rel == "current" ) {
+          url = url.search({q: this.search});
+        }
+        url = url.toString();
+
+        that.loader = true;
+        that.$http.get(url)
+          .then(function (result) {
+            this.apiURL = parseLinkHeader(result.headers.get('Link'));
+            that.loader = false;
+            this.data = result.data;
+          }, function (response, status, request) {
+            that.loader = false;
+            var data = response.data;
+            if (data.message) {
+              that.error.message = data.message;
+            }
+            else {
+              that.error.message = "Oops Something went wrong, please try again later.";
+            }
+          })
+          .finally(function () {
+          });
+      } else {
+        console.log("No apiurl");
+      }
+    },
+
+    currentPage: function () {
+      var that = this;
+      var page, total;
+      var current = that.apiURL['current'];
+      if (current && current !== "") {
+        var search = URI(current).search(true);
+        page = search['page'] || 1;
+      } else {
+        page = 1;
+      }
+      var end = that.apiURL['end'];
+      if (end && end !== "") {
+        var search = URI(end).search(true);
+        total = search['page'] || 1;
+      } else {
+        total = 1;
+      }
+      return page + " / " + total;
+    },
+
+    getLink: function (rel) {
+      return this.apiURL[rel];
+    }
+  }
+});

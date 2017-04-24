@@ -3,38 +3,43 @@ use Mojo::Base 'Mojolicious::Controller';
 
 sub under {
   my $self = shift;
-  return 1 if $self->session('id');
+  return 1 if $self->session('id') || $self->developer;
   $self->redirect_to('index');
   return undef;
 }
 
-sub listfriends {
+sub friends {
   my $self = shift;
-  $self->render(athletes => $self->strava->listfriends);
+  return $self->render unless $self->req->is_xhr;
+  my ($friends, $pager) = $self->strava->users($self->session('id'), $self->req->query_params->to_hash);
+  $_->{link} = $self->url_for('pull_activities', {source => $_->{id}}) foreach @$friends;
+  $self->pagination($pager)->render(json => $friends);
 }
 
-sub listactivities {
+sub activities {
   my $self = shift;
-  return $self->reply->not_found unless $self->pg->db->select('pull', ['id'], {friend => $self->param('source'), id => $self->session('id')})->hash;
+  return $self->render unless $self->req->is_xhr;
+  return $self->reply->not_found unless $self->strava->can_pull($self->session('id'), $self->param('source'));
+  my $per_page = $self->param('per_page') // 10;
   $self->render_later;
-  my $access_token = $self->pg->db->select('strava', ['access_token'], {id => $self->param('source')})->hash->{access_token};
+
   $self->delay(
     sub {
       my $delay = shift;
-      $self->ua->get('https://www.strava.com/api/v3/athlete/activities' => {Authorization => "Bearer $access_token"} => $delay->begin);
+      $self->strava->get($self->param('source'), "/athlete/activities?per_page=$per_page" => $delay->begin);
     },
     sub {
       my ($delay, $activities) = @_;
-      $self->render(activities => $activities->res->json);
+      $self->render(json => $activities->result->json);
     }
   );
 }
 
-sub pullactivity {
+sub pullactivities {
   my $self = shift;
-  return $self->reply->not_found unless $self->pg->db->select('pull', ['id'], {friend => $self->param('source'), id => $self->session('id')})->hash;
-  $self->minion->enqueue(copy_activity => [$self->param('source'), $self->session('id'), $self->every_param('activity')]);
-  $self->flash(message => 'Pulling activities')->redirect_to('pull_listfriends');
+  return $self->reply->not_found unless $self->strava->can_pull($self->session('id'), $self->param('source'));
+  $self->minion->enqueue(copy_activities => [$self->param('source'), $self->session('id'), $self->every_param('activity')]);
+  $self->flash(message => 'Pulling activities')->redirect_to('pull_index');
 }
 
 1;
