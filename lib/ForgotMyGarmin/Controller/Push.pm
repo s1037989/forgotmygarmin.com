@@ -1,46 +1,54 @@
 package ForgotMyGarmin::Controller::Push;
 use Mojo::Base 'Mojolicious::Controller';
 
-use Mojo::File 'tempfile';
-
-use Geo::Gpx;
-use DateTime;
+use Data::Pager;
 
 sub under {
   my $self = shift;
-
-  return 1 if $self->session('id');
+  return 1 if $self->session('id') || $self->developer;
   $self->redirect_to('index');
   return undef;
 }
 
-sub listfriends {
+sub friends {
   my $self = shift;
-  $self->render(athletes => $self->pg->db->query('select strava.* from push left join strava using(id) where push.friend = ?', $self->session('id'))->hashes);
+  return $self->render unless $self->req->is_xhr;
+  my ($friends, $pager) = $self->strava->users($self->session('id'), $self->req->query_params->to_hash);
+  $_->{link} = $self->url_for('push_activities', {destination => $_->{id}}) foreach @$friends;
+  $self->pagination($pager)->render(json => $friends);
 }
 
-sub listactivities {
+sub activities {
   my $self = shift;
-  return $self->reply->not_found unless $self->pg->db->select('push', ['id'], {id => $self->param('destination'), friend => $self->session('id')})->hash;
+  return $self->render unless $self->req->is_xhr;
+  return $self->reply->not_found unless $self->strava->can_push($self->session('id'), $self->param('source'));
+  my $page = $self->param('page') // 1;
+  my $per_page = $self->param('per_page') // 10;
   $self->render_later;
-  my $access_token = $self->pg->db->select('strava', ['access_token'], {id => $self->session('id')})->hash->{access_token};
+
   $self->delay(
     sub {
       my $delay = shift;
-      $self->ua->get('https://www.strava.com/api/v3/athlete/activities' => {Authorization => "Bearer $access_token"} => $delay->begin);
+      $self->strava->get($self->param('destination'), "/athlete/activities?per_page=$per_page&page=$page" => $delay->begin);
     },
     sub {
-      my ($delay, $activities) = @_;
-      $self->render(activities => $activities->res->json);
+      my ($delay, $tx) = @_;
+      my $activities = $tx->result->json;
+      my $pager = Data::Pager->new({current => $tx->req->url->query->param('page'), offset => $tx->req->url->query->param('per_page'), limit => 200});
+      foreach ( @$activities ) {
+        $_->{elapsed_time} = $self->elapsed_time($_->{elapsed_time});
+        $_->{distance} = $self->distance($_->{distance});
+      }
+      $self->pagination($pager)->render(json => $activities);
     }
   );
 }
 
-sub pushactivity {
+sub pushactivities {
   my $self = shift;
-  return $self->reply->not_found unless $self->pg->db->select('push', ['id'], {id => $self->param('destination'), friend => $self->session('id')})->hash;
-  $self->minion->enqueue(copy_activity => [$self->session('id'), $self->param('destination'), $self->every_param('activity')]);
-  $self->flash(message => 'Pushing activities')->redirect_to('push_listfriends');
+  return $self->reply->not_found unless $self->strava->can_push($self->session('id'), $self->param('source'));
+  #$self->minion->enqueue(copy_activities => [$self->session('id'), $self->param('destination'), $self->every_param('activity')]);
+  $self->flash(message => sprintf 'Pushing activities: %s', join ', ', @{$self->every_param('activity')})->redirect_to('push_friends');
 }
 
 1;

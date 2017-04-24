@@ -7,8 +7,8 @@
 <div class="row">
 <div class="col-md-8">
 <div id="vue">
-  <api-data apiurl="<%= url_for 'pull_activities' %>">
-    Select an activity to pull from <%= param 'source' %>
+  <api-data apiurl="<%= url_for 'push_activities' %>">
+    Select an activity to push to <%= param 'destination' %>
   </api-data>
 </div>
 
@@ -16,7 +16,7 @@
 <div id="my-friend-list" class="col-sm-12" style="padding: 25px;" v-cloak>
   <h1><slot></slot></h1>
   <div id="friend-list-table" class="col-sm-12" style="min-height: 150px">
-    %= form_for 'pull_pullactivities' => {source => param 'source'} => (method => 'POST') => begin
+    %= form_for 'push_pushactivities' => {source => param 'source'} => (method => 'POST') => begin
     <table class="table table-responsive">
       <thead>
       <tr>
@@ -45,7 +45,7 @@
       </tr>
       </tbody>
     </table>
-    %= submit_button 'Pull'
+    %= submit_button 'push'
     % end
   </div>
   <div id="paginate-content" class="col-sm-12" v-if="data.length > 0 && !loader">

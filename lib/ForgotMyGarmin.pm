@@ -81,20 +81,6 @@ sub startup {
   $r->get('/connect')->to('auth#connect');
   $r->get('/logout')->to('auth#logout');
 
-  #my $api = $r->under('/api')->over('is_xhr')->to('api#under');
-  #my $v1  = $api->under('/v1')->to(controller => 'api1');
-  
-  # my $r = $self->routes;
-  # $r->get('/' => sub { shift->redirect_to('posts') });
-  # my $posts = $r->under('/posts');
-  # $posts->get('/')->to('posts#index');
-  # $posts->get('/create')->to('posts#create')->name('create_post');
-  # $posts->post('/')->to('posts#store')->name('store_post');
-  # $posts->get('/:id')->to('posts#show')->name('show_post');
-  # $posts->get('/:id/edit')->to('posts#edit')->name('edit_post');
-  # $posts->put('/:id')->to('posts#update')->name('update_post');
-  # $posts->delete('/:id')->to('posts#remove')->name('remove_post');
-
   my $friends = $r->under('/friends')->to('friends#under');
   $friends->get('/')->to('friends#home')->name('friends_home');
   $friends->post('/')->to('friends#update')->name('friends_update');
@@ -107,9 +93,9 @@ sub startup {
   $pull->post('/:source')->to('pull#pullactivities')->name('pull_pullactivities');
 
   my $push = $r->under('/push')->to('push#under');
-  $push->get('/')->to('push#listfriends')->name('push_listfriends');
-  $push->get('/:destination')->to('push#listactivities')->name('push_listactivities');
-  $push->post('/:destination')->to('push#pushactivity')->name('push_pushactivity');
+  $push->get('/')->to('push#friends')->name('push_friends');
+  $push->get('/:destination')->to('push#activities')->name('push_activities');
+  $push->post('/:destination')->to('push#pushactivities')->name('push_pushactivities');
 
   # Debugging route to allow the developer to assume the role of any user (dangerous!)
 	$r->get('/session/:id')->over('developer')->to(cb => sub {

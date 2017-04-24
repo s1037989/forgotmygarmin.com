@@ -103,17 +103,17 @@ sub get {
 sub post {
   my ($self, $id, $url) = (shift, shift, shift);
   ($id && $url) or return;
-  return $self->ua->post($self->_url($id, $url) => @_)->result;
+  return $self->ua->post($self->_url($id, $url) => @_);
 }
 sub delete {
   my ($self, $id, $url) = (shift, shift, shift);
   ($id && $url) or return;
-  return $self->ua->delete($self->_url($id, $url) => @_)->result;
+  return $self->ua->delete($self->_url($id, $url) => @_);
 }
 sub put {
   my ($self, $id, $url) = (shift, shift, shift);
   ($id && $url) or return;
-  return $self->ua->put($self->_url($id, $url) => @_)->result;
+  return $self->ua->put($self->_url($id, $url) => @_);
 }
 
 sub _authorization {
