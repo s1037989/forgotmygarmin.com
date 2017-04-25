@@ -30,13 +30,13 @@ sub access_token {
   $self->pg->db->select('strava', ['access_token'], {id => $id})->hash->{access_token};
 }
 sub can_pull {
-  my ($self, $id, $friend) = @_;
-  $self->pg->db->select('pull', ['id'], {friend => $friend, id => $id})->hash;
+  my ($self, $id, $source) = @_;
+  $self->pg->db->select('pull', ['id'], {friend => $source, id => $id})->hash;
 }
 
 sub can_push {
-  my ($self, $id, $friend) = @_;
-  $self->pg->db->select('push', ['id'], {friend => $friend, id => $id})->hash;
+  my ($self, $id, $destination) = @_;
+  $self->pg->db->select('push', ['id'], {friend => $id, id => $destination})->hash;
 }
 
 sub users {

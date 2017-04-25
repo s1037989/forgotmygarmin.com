@@ -21,7 +21,7 @@ sub friends {
 sub activities {
   my $self = shift;
   return $self->render unless $self->req->is_xhr;
-  return $self->reply->not_found unless $self->strava->can_push($self->session('id'), $self->param('source'));
+  return $self->reply->not_found unless $self->strava->can_push($self->session('id'), $self->param('destination'));
   my $page = $self->param('page') // 1;
   my $per_page = $self->param('per_page') // 10;
   $self->render_later;
@@ -29,7 +29,7 @@ sub activities {
   $self->delay(
     sub {
       my $delay = shift;
-      $self->strava->get($self->param('destination'), "/athlete/activities?per_page=$per_page&page=$page" => $delay->begin);
+      $self->strava->get($self->session('id'), "/athlete/activities?per_page=$per_page&page=$page" => $delay->begin);
     },
     sub {
       my ($delay, $tx) = @_;
@@ -46,7 +46,7 @@ sub activities {
 
 sub pushactivities {
   my $self = shift;
-  return $self->reply->not_found unless $self->strava->can_push($self->session('id'), $self->param('source'));
+  return $self->reply->not_found unless $self->strava->can_push($self->session('id'), $self->param('destination'));
   #$self->minion->enqueue(copy_activities => [$self->session('id'), $self->param('destination'), $self->every_param('activity')]);
   $self->flash(message => sprintf 'Pushing activities: %s', join ', ', @{$self->every_param('activity')})->redirect_to('push_friends');
 }
