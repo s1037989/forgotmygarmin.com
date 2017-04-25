@@ -2,7 +2,6 @@ package ForgotMyGarmin::Model::Strava;
 use Mojo::Base -base;
 
 use Mojo::File 'tempfile';
-use Mojo::Util 'monkey_patch';
 
 use Geo::Gpx;
 use DateTime;
@@ -11,6 +10,8 @@ use Data::Pager;
 has [qw/pg ua/];
 
 has [qw/id query/];
+
+sub name { shift->pg->db->select('strava', 'concat_ws(\' \', firstname, lastname) as name', {id => shift})->hash->{name} }
 
 sub _pagination {
   my ($self, $id, $query, $select) = @_;

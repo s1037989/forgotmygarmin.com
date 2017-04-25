@@ -4,8 +4,10 @@
 
 Vue.directive('map', function (el, binding) {
   console.log(el.id);
-  console.log(binding.value.id) // => "white"
-  console.log(binding.value.polyline)  // => "hello!"
+return;
+  // console.log(binding.value.id) // => "white"
+  // console.log(binding.value.polyline)  // => "hello!"
+  // source: http://doublespringlabs.blogspot.com.br/2012/11/decoding-polylines-from-google-maps.html
   var encoded = binding.value.polyline;
   var points=[ ]
   var index = 0, len = encoded.length;
@@ -31,7 +33,7 @@ Vue.directive('map', function (el, binding) {
       points.push({lat:( lat / 1E5),lng:( lng / 1E5)})  
   }
   var coordinates = points;
-  console.log(coordinates);
+  // console.log(coordinates);
   var bounds = new google.maps.LatLngBounds();
   for (var i = 0; i < coordinates.length; i++) {
       bounds.extend(coordinates[i]);
@@ -133,10 +135,6 @@ Vue.component('api-data', {
 
     getLink: function (rel) {
       return this.apiURL[rel];
-    },
-
-    // source: http://doublespringlabs.blogspot.com.br/2012/11/decoding-polylines-from-google-maps.html
-    decode: function (encoded) {
     }
 
   }

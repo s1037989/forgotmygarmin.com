@@ -26,6 +26,7 @@
         <th>Activity Name</th>
         <th>Elapsed Time</th>
         <th>Distance</th>
+        <th>Map</th>
       </tr>
       </thead>
       <tbody>
@@ -36,6 +37,7 @@
         <td>{{activity.name}}</td>
         <td>{{activity.elapsed_time}}</td>
         <td>{{activity.distance}}</td>
+        <td><div :id="'map'+activity.id" class="map" v-map="{ id: 'map'+activity.id, polyline: activity.map.summary_polyline }"></div></td>
       </tr>
       <tr v-if="data.length == 0 && !loader">
         <td colspan="7" style="text-align: center"><b>No Record Found</b></td>
