@@ -7,7 +7,7 @@
 <div class="row">
 <div class="col-md-8">
 <div id="vue">
-  <api-data apiurl="<%= url_for 'push' %>">
+  <api-data apiurl="<%= url_with('push')->query([_time => time]) %>">
     Select an athlete to push an activity to
   </api-data>
 </div>
@@ -33,7 +33,13 @@
         <td><a :href="friend.link">{{friend.name}}</a></td>
       </tr>
       <tr v-if="data.length == 0 && !loader">
-        <td colspan="7" style="text-align: center"><b>No Record Found</b></td>
+        <td colspan="7" style="text-align: center" v-if="search">
+          <b>No Record Found</b>
+          
+        </td>
+        <td colspan="7" style="text-align: center" v-else>
+          {{search}}  
+        </td>
       </tr>
       <tr v-if="loader">
         <td colspan="7" style="text-align: center"><b>Loading...</b></td>

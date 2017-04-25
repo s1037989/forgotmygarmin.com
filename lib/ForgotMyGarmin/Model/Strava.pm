@@ -34,13 +34,19 @@ sub access_token {
   $self->pg->db->select('strava', ['access_token'], {id => $id})->hash->{access_token};
 }
 sub can_pull {
-  my ($self, $id, $source) = @_;
-  $self->pg->db->select('pull', ['id'], {friend => $source, id => $id})->hash;
+  my ($self, $id, $query) = @_;
+  return $self->pg->db->select('pull', ['id'], {friend => $query, id => $id})->hash if $query and !ref $query;
+  my $where = {"pull.id" => $id, "strava.id" => \"= pull.friend"};
+  $where = {%$where, -or => [email => $query->{q}, \['lower(concat_ws(\' \', firstname, lastname)) like lower(?)', "%$query->{q}%"]]} if $query->{q};
+  return $self->_pagination($id, $query, ['strava, pull', 'strava.id, profile_url, concat_ws(\' \', firstname, lastname) as name', $where, undef]);
 }
 
 sub can_push {
-  my ($self, $id, $destination) = @_;
-  $self->pg->db->select('push', ['id'], {friend => $id, id => $destination})->hash;
+  my ($self, $id, $query) = @_;
+  return $self->pg->db->select('push', ['id'], {friend => $id, id => $query})->hash if $query and !ref $query;
+  my $where = {friend => $id, "strava.id" => \"= push.id"};
+  $where = {%$where, -or => [email => $query->{q}, \['lower(concat_ws(\' \', firstname, lastname)) like lower(?)', "%$query->{q}%"]]} if $query->{q};
+  return $self->_pagination($id, $query, ['strava, push', 'strava.id, profile_url, concat_ws(\' \', firstname, lastname) as name', $where, undef]);
 }
 
 sub users {

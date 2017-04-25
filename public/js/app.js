@@ -93,7 +93,9 @@ Vue.component('api-data', {
         that.loader = true;
         that.$http.get(url)
           .then(function (result) {
-            this.apiURL = parseLinkHeader(result.headers.get('Link'));
+            if ( result.headers.get('Link') ) {
+              this.apiURL = parseLinkHeader(result.headers.get('Link'));
+            }
             that.loader = false;
             this.data = result.data;
           }, function (response, status, request) {

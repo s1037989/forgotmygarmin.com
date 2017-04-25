@@ -7,7 +7,7 @@
 <div class="row">
 <div class="col-md-8">
 <div id="vue">
-  <api-data apiurl="<%= url_for 'pull' %>">
+  <api-data apiurl="<%= url_with('pull')->query([_time => time]) %>">
     Select an athlete to pull an activity from
   </api-data>
 </div>

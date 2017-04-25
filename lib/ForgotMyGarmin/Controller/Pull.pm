@@ -13,7 +13,7 @@ sub under {
 sub friends {
   my $self = shift;
   return $self->render unless $self->req->is_xhr;
-  my ($friends, $pager) = $self->strava->users($self->session('id'), $self->req->query_params->to_hash);
+  my ($friends, $pager) = $self->strava->can_pull($self->session('id'), $self->req->query_params->to_hash);
   $_->{link} = $self->url_for('pull_activities', {source => $_->{id}}) foreach @$friends;
   $self->pagination($pager)->render(json => $friends);
 }

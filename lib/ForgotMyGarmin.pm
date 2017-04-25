@@ -35,7 +35,7 @@ sub startup {
     # https://github.com/kraih/mojo/commit/fdd6c579b31145bed0f762544c94013f57a3851d 
     my $c = shift;
     my $pager = shift or return $c;
-    $c->res->headers->link(join ', ', map { sprintf "<%s>; %s", $c->url_with($c->current_route)->query([page => $pager->$_, per_page => $pager->offset])->to_abs, qq(rel="$_") } grep { $pager->$_ } qw/prev next current start end/);
+    $c->res->headers->link(join ', ', map { sprintf "<%s>; %s", $c->url_with($c->current_route)->query([page => $pager->$_, per_page => $pager->offset]), qq(rel="$_") } grep { $pager->$_ } qw/prev next current start end/);
     return $c;
   });
   # Check whether or not this request is a development request made by the developer (for debugging)
