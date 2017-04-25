@@ -47,7 +47,7 @@ sub activities {
 sub pullactivities {
   my $self = shift;
   return $self->reply->not_found unless $self->strava->can_pull($self->session('id'), $self->param('source'));
-  #$self->minion->enqueue(copy_activities => [$self->param('source'), $self->session('id'), $self->every_param('activity')]);
+  $self->minion->enqueue(copy_activities => [$self->param('source'), $self->session('id'), $self->every_param('activity')]);
   $self->flash(message => sprintf 'Pulling activities: %s', join ', ', @{$self->every_param('activity')})->redirect_to('pull_friends');
 }
 

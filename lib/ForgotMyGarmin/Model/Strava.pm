@@ -1,6 +1,7 @@
 package ForgotMyGarmin::Model::Strava;
 use Mojo::Base -base;
 
+use Mojo::Log;
 use Mojo::File 'tempfile';
 
 use Geo::Gpx;
@@ -10,6 +11,8 @@ use Data::Pager;
 has [qw/pg ua/];
 
 has [qw/id query/];
+
+has log => sub { Mojo::Log->new };
 
 sub name { shift->pg->db->select('strava', 'concat_ws(\' \', firstname, lastname) as name', {id => shift})->hash->{name} }
 
@@ -77,7 +80,6 @@ sub copy_activity {
   $t =~ /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})Z$/;
   $t = DateTime->new(year => $1, month => $2, day => $3, hour => $4, minute => $5, second => $6, time_zone  => 'UTC')->epoch;
   my $gpx = Geo::Gpx->new;
-  $gpx->desc("I forgot my garmin!  I copied this activity from $source using forgotmygarmin.com");
   $gpx->time($t);
   $gpx->name($activity->{name});
   my $tracks = [];
@@ -92,7 +94,18 @@ sub copy_activity {
   $gpx->tracks($tracks);
   my $tempfile = tempfile;
   $tempfile->spurt($gpx->xml('1.0'));
-  return $self->ua->post('https://www.strava.com/api/v3/uploads' => {Authorization => "Bearer $access_token"} => form => {activity_type => $activity->{type}, data_type => 'gpx', file => {file => "$tempfile"}});
+  $self->log->debug("Copying activity $activity_id ($source => $destination)");
+  my $upload_form = {
+    activity_type => $activity->{type},
+    name => $activity->{name},
+    description => "I forgot my garmin!  I copied this activity from $source using forgotmygarmin.com",
+    data_type => 'gpx',
+    file => {file => "$tempfile"},
+  };
+  my $upload_res = $self->ua->post('https://www.strava.com/api/v3/uploads' => {Authorization => "Bearer $access_token"} => form => $upload_form)->result->json;
+  return $upload_res if $upload_res->{error};
+  #$self->pg->db->insert('uploads', $upload_form);
+  return {%$upload_form, %$upload_res};
 }
 
 # $ perl script/forgot_my_garmin eval 'app->strava->get(4598390, "/athlete")'

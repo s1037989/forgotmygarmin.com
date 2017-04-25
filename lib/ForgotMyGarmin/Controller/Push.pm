@@ -47,7 +47,7 @@ sub activities {
 sub pushactivities {
   my $self = shift;
   return $self->reply->not_found unless $self->strava->can_push($self->session('id'), $self->param('destination'));
-  $self->minion->enqueue(copy_activities => [$self->session('id'), $self->param('destination'), @{$self->every_param('activity')}]);
+  $self->minion->enqueue(copy_activities => [$self->session('id'), $self->param('destination'), $self->every_param('activity')]);
   $self->flash(message => sprintf 'Pushing activities: %s', join ', ', @{$self->every_param('activity')})->redirect_to('push_friends');
 }
 
